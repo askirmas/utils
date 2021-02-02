@@ -35,7 +35,16 @@ function deepPatch<T>(source: T, patch: T) :T|undefined {
       continue
     }
 
-    $return[key] = value
+    if (
+      value === null
+      || typeof value !== "object"
+      || $isArray (value)
+    ) {
+      $return[key] = value
+      continue
+    }
+
+    
   }
     
   for (let key in patch)
