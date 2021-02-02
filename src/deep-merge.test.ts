@@ -1,16 +1,13 @@
-//@ts-nocheck
 import deepPatch from "./deep-merge"
 
-it("no source", () => {
-  const patch = ["a"]
-  expect(deepPatch(undefined, patch)).toBe(patch)
-})
 it("scalar", () => expect(deepPatch("a", "b")).toBe("a"))
-it("null overwrite", () => expect(deepPatch("a", null)).toBe(undefined))
 
 describe("not patchable", () => {
   const flat = ["a"]
-  , nested = {"array": ["a"], "b": null}
+  , nested: {
+    "array": unknown[]
+    "b": null|string
+  }= {"array": ["a"], "b": null}
   
   it("flat", () => expect(deepPatch(flat, ["b"])).toBe(flat))
 
@@ -18,7 +15,12 @@ describe("not patchable", () => {
 })
 
 describe("flat assoc", () => {
-  const source = {"a": 1, "b": 2}
+  const source: {
+    "a": number
+    "b": number
+    "c"?: number
+    "d"?: number
+  } = {"a": 1, "b": 2}
 
   it("subset", () => expect(deepPatch(source, {
     "a": 1
@@ -66,7 +68,7 @@ describe("nested", () => {
   }
 
   describe("overwrite", () => {
-    it("TBD", () => expect(deepPatch(depth1, patch1)).not.toStrictEqual(patch1))
-    it("TBD", () => expect(deepPatch(depth1, patch1)).not.toBe(patch1))
+    it(".equal", () => expect(deepPatch(depth1, patch1)).not.toStrictEqual(patch1))
+    it(".be", () => expect(deepPatch(depth1, patch1)).not.toBe(patch1))
   })
 })
