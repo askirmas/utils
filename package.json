@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "test": "jest",
-    "dev": "jest --watch --coverage=false --onlyFailures"
+    "dev": "jest --watch --coverage=false"
   },
   "repository": {
     "type": "git",

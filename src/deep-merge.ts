@@ -36,14 +36,16 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
  
   const merged = {} as T
 
-  let same = true
-  
+  let isSource = true
+  let isPatch = true
+
   for (let key in source) {
     const value = source[key]
     , update = patch[key]
     
     if (update === null) {
-      same && (same = false)
+      isPatch && (isPatch = false)
+      isSource && (isSource = false)
       continue
     }
 
@@ -51,6 +53,7 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
       update === undefined
       || value === update
     ) {
+      (update === undefined) && (isPatch = false)
       merged[key] = value
       continue
     }
@@ -61,7 +64,7 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
       && typeof value === "object"
       && $isArray(value) === $isArray(update)
     )) {
-      same && (same = false)
+      isSource && (isSource = false)
       //@ts-expect-error
       merged[key] = update
       continue
@@ -70,9 +73,15 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
     //@ts-expect-error
     const next = deepPatch(value, update)
 
-    if (same && next !== value)
-      same = false
+    if (isSource && next !== value)
+      isSource = false
 
+    if (
+      isPatch
+      && next !== update
+    )
+      isPatch = false
+    
     merged[key] = next
   }
 
@@ -80,15 +89,23 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
     if (!(key in source)) {
       const update = patch[key]
 
-      if (update === null)
+      if (update === null || update === undefined) {
+        isPatch = false
         continue
+      }
       
-      same && (same = false)
+      isSource && (isSource = false)
 
       //@ts-expect-error
       merged[key] = update
     }
     
-  return same ? source : merged
+  if (isSource)
+    return source
+  if (isPatch)
+    //@ts-expect-error
+    return patch
+
+  return merged
 }
 

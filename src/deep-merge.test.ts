@@ -83,7 +83,7 @@ describe("nested", () => {
 
   describe("overwrite", () => {
     it("equal", () => expect(deepPatch(deep, patch)).toStrictEqual(patch))
-    it(".be", () => expect(deepPatch(deep, patch)).not.toBe(patch))
+    it("be", () => expect(deepPatch(deep, patch)).toBe(patch))
   })
 })
 
