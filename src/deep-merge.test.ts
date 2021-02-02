@@ -16,11 +16,11 @@ describe("not patchable", () => {
 
 describe("flat assoc", () => {
   const source: {
-    "a"?: number
+    "a": number
     "b"?: number
-    "c"?: number
+    "c": number
     "d"?: number
-  } = {"a": 1, "b": 2}
+  } = {"a": 1, "b": 2, "c": 3}
 
   it("subset", () => expect(deepPatch(source, {
     "a": 1
