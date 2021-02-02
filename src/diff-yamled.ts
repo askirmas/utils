@@ -1,5 +1,5 @@
 import {diffLines} from "diff"
-//TODO compare with yaml
+//TODO compare with `yaml`
 import {
   dump,
   load as parse,
@@ -8,7 +8,7 @@ import {
 
 const schema = DEFAULT_SCHEMA.extend(require("js-yaml-js-types/undefined"));
 
-export default deepDiff
+export default deepDiffYamled
 
 const stringify = (o: unknown) => dump(o, {
   lineWidth: Infinity,
@@ -17,7 +17,7 @@ const stringify = (o: unknown) => dump(o, {
   forceQuotes: true
 })
 
-function deepDiff<T>(o1: T, o2: T) {
+function deepDiffYamled<T>(o1: T, o2: T) {
   const result = diffLines(
     stringify(o1),
     stringify(o2),
