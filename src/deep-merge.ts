@@ -1,11 +1,15 @@
 const {isArray: $isArray} = Array
 
-export type Shredded<T> = T extends unknown[] ? T :
-  T extends Record<string, unknown> 
+//TODO Test
+export type Shredded<T> = null | (
+  T extends unknown[]
+  ? T
+  : T extends Record<string, unknown> 
   ? {
-    [K in keyof T]?: undefined | null | Shredded<T[K]>
+    [K in keyof T]: Exclude<Shredded<T[K]>, undefined>
   }
   : T
+)
 
 export default deepPatch
 
@@ -26,6 +30,7 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
   
   for (let key in source) {
     const value = source[key]
+    //@ts-expect-error
     , update = patch[key]
     
     if (update === null) {
@@ -34,6 +39,7 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
     }
 
     if (
+      //TODO not sure
       value === null
       || typeof value !== "object"
       || $isArray (value)
@@ -58,3 +64,4 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
 
   return same ? source : $return
 }
+

@@ -16,8 +16,8 @@ describe("not patchable", () => {
 
 describe("flat assoc", () => {
   const source: {
-    "a": number
-    "b": number
+    "a"?: number
+    "b"?: number
     "c"?: number
     "d"?: number
   } = {"a": 1, "b": 2}
