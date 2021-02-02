@@ -1,5 +1,6 @@
 {
   "collectCoverage": true,
+  "coverageDirectory": "../coverage",
   "rootDir": "src",
   "collectCoverageFrom": [
     "<rootDir>/**/*.{ts,tsx,js,jsx}"
