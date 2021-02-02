@@ -76,10 +76,7 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
     if (isSource && next !== value)
       isSource = false
 
-    if (
-      isPatch
-      && next !== update
-    )
+    if (isPatch && next !== update)
       isPatch = false
     
     merged[key] = next

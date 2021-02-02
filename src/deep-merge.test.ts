@@ -1,5 +1,11 @@
 import deepPatch from "./deep-merge"
 
+describe("simple", () => {
+  const source = {"a": "a"}
+  it("same", () => expect(deepPatch(source, source)).toBe(source))
+  it("no patch", () => expect(deepPatch(source, undefined)).toBe(source))
+})
+
 it("scalar", () => expect(deepPatch("a", "b")).toBe("b"))
 
 describe("array", () => {
@@ -33,6 +39,7 @@ describe("flat assoc", () => {
     "b"?: number
     "c": number
     "d"?: number
+    "e"?: number
   } = {"a": 1, "b": 2, "c": 3}
 
   it("subset", () => expect(deepPatch(source, {
@@ -61,58 +68,88 @@ describe("flat assoc", () => {
     "a": 1,
     "b": undefined,
     "c": 3,
-    "d": null
+    "d": null,
+    "e": 5
   })).toStrictEqual({
     "a": 1,
     "b": 2,
-    "c": 3
+    "c": 3,
+    "e": 5
   }))
 })
 
-describe("nested", () => {
-  const deep = {
-    "nested": {
-      "a": "a"
+describe("deep", () => {
+  const deep: {n: {n: {
+    a?: string
+    b?: string
+    c?: string
+  }}} = {
+    "n": {
+      "n": {
+        "a": "a",
+        "c": "c"
+      }
     }
   }
-  , patch = {
-    "nested": {
-      "a": "b"
+  , overwrite: typeof deep = {
+    "n": {
+      "n": {
+        "a": "A",
+        "c": "c"
+      }
+    }
+  }  
+  , patch: Shredded<typeof deep> = {
+    "n": {
+      "n": {
+        "b": "b"
+      }
     }
   }
-
-  describe("overwrite", () => {
-    it("equal", () => expect(deepPatch(deep, patch)).toStrictEqual(patch))
-    it("be", () => expect(deepPatch(deep, patch)).toBe(patch))
-  })
-})
-
-describe("deep delete", () => {
-  const depth: {n: {n: {a?: string}}} = {
+  , sub: Shredded<typeof deep> = {
     "n": {
       "n": {
         "a": "a"
       }
     }
   }
-  , patch = {
+
+  it("sub", () => expect(deepPatch(deep, sub)).toBe(deep))
+
+  it("overwrite", () => expect(deepPatch(deep, overwrite)).toBe(overwrite))
+
+  it("update", () => expect(deepPatch(deep, patch)).toStrictEqual({
     "n": {
       "n": {
-        "a": null
+        "a": "a",
+        "b": "b",
+        "c": "c"
       }
     }
-  }
+  }))
 
-  it("option1", () => expect(deepPatch(depth, patch)).toStrictEqual(
-    {"n": {"n": {}}}
-  ))
-  it("not nested empty", () => expect(deepPatch(depth, patch)).not.toStrictEqual(
-    {"n": {}}
-  ))
-  it("not empty object", () => expect(deepPatch(depth, patch)).not.toStrictEqual(
-    {}
-  ))
-  it("not undefined", () => expect(deepPatch(depth, patch)).not.toBe(
-    undefined
-  ))
+  describe("delete", () => {
+    const delete_patch: Shredded<typeof deep> = {
+      "n": {
+        "n": {
+          "a": null,
+          "c": null
+        }
+      }
+    }
+
+    it("option1", () => expect(deepPatch(deep, delete_patch)).toStrictEqual(
+      {"n": {"n": {}}}
+    ))
+    it("not nested empty", () => expect(deepPatch(deep, delete_patch)).not.toStrictEqual(
+      {"n": {}}
+    ))
+    it("not empty object", () => expect(deepPatch(deep, delete_patch)).not.toStrictEqual(
+      {}
+    ))
+    it("not undefined", () => expect(deepPatch(deep, delete_patch)).not.toBe(
+      undefined
+    ))
+  })
+
 })
