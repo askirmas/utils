@@ -1,18 +1,31 @@
 import deepPatch from "./deep-merge"
 
-it("scalar", () => expect(deepPatch("a", "b")).toBe("a"))
+it("scalar", () => expect(deepPatch("a", "b")).toBe("b"))
 
-describe("not patchable", () => {
-  const flat = ["a"]
-  , nested: {
-    "array": unknown[]
-    "b": null|string
-  }= {"array": ["a"], "b": null}
-  
-  it("flat", () => expect(deepPatch(flat, ["b"])).toBe(flat))
+describe("array", () => {
+  const arr = ["a"]
+  , p1 = ["b"]
+  , difLength = ["a", "b"]
 
-  it("nested", () => expect(deepPatch(nested, {"array": ["b"], "b": "1"})).toBe(nested))
+  it("same", () => expect(deepPatch(arr,
+    ["a"]
+  )).toBe(
+    arr
+  ))
+
+  it("overwrite", () => expect(deepPatch(arr,
+    p1
+  )).toBe(
+    p1
+  ))
+
+  it("overwrite due to length", () => expect(deepPatch(arr,
+    difLength
+  )).toBe(
+    difLength
+  ))
 })
+
 
 describe("flat assoc", () => {
   const source: {
@@ -31,7 +44,8 @@ describe("flat assoc", () => {
   it("delete", () => expect(deepPatch(source, {
     "b": null
   })).toStrictEqual({
-    "a": 1
+    "a": 1,
+    "c": 3
   }))
 
   it("merge", () => expect(deepPatch(source, {
@@ -56,19 +70,49 @@ describe("flat assoc", () => {
 })
 
 describe("nested", () => {
-  const depth1 = {
+  const deep = {
     "nested": {
       "a": "a"
     }
   }
-  , patch1 = {
+  , patch = {
     "nested": {
       "a": "b"
     }
   }
 
   describe("overwrite", () => {
-    it(".equal", () => expect(deepPatch(depth1, patch1)).not.toStrictEqual(patch1))
-    it(".be", () => expect(deepPatch(depth1, patch1)).not.toBe(patch1))
+    it("equal", () => expect(deepPatch(deep, patch)).toStrictEqual(patch))
+    it(".be", () => expect(deepPatch(deep, patch)).not.toBe(patch))
   })
+})
+
+describe("deep delete", () => {
+  const depth: {n: {n: {a?: string}}} = {
+    "n": {
+      "n": {
+        "a": "a"
+      }
+    }
+  }
+  , patch = {
+    "n": {
+      "n": {
+        "a": null
+      }
+    }
+  }
+
+  it("option1", () => expect(deepPatch(depth, patch)).toStrictEqual(
+    {"n": {"n": {}}}
+  ))
+  it("not nested empty", () => expect(deepPatch(depth, patch)).not.toStrictEqual(
+    {"n": {}}
+  ))
+  it("not empty object", () => expect(deepPatch(depth, patch)).not.toStrictEqual(
+    {}
+  ))
+  it("not undefined", () => expect(deepPatch(depth, patch)).not.toBe(
+    undefined
+  ))
 })

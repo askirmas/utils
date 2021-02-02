@@ -3,17 +3,38 @@ const {isArray: $isArray} = Array
 export default deepPatch
 
 function deepPatch<T>(source: T, patch: Shredded<T>) :T {
-  
-  if (
-    source === patch
-    || source === null
-    || typeof source !== "object"
-    || typeof patch !== "object"
-    || $isArray(source)
-  )
+  if (patch === undefined || patch === source)
     return source
+
+  if (
+    typeof patch !== "object"
+    || !(
+      source !== null
+      && typeof source === "object"
+    )
+    || $isArray(patch) !== $isArray(source)
+  )
+    //@ts-expect-error
+    return patch
   
-  const $return = {} as T
+  if ($isArray(source)) {
+    const {length} = source
+    , p = patch as typeof patch & unknown[]
+    , {"length": patchLen} = p
+
+    if (length !== patchLen)
+      //@ts-expect-error
+      return p
+    
+    for (let i = length; i--;)
+      if (p[i] !== source[i])
+        //@ts-expect-error
+        return p
+    
+    return source
+  }
+ 
+  const merged = {} as T
 
   let same = true
   
@@ -27,29 +48,47 @@ function deepPatch<T>(source: T, patch: Shredded<T>) :T {
     }
 
     if (
-      //TODO not sure
-      value === null
-      || typeof value !== "object"
-      || $isArray (value)
+      update === undefined
+      || value === update
     ) {
-      $return[key] = value
+      merged[key] = value
       continue
     }
 
+    if (!(
+      typeof update === "object"
+      && value !== null
+      && typeof value === "object"
+      && $isArray(value) === $isArray(update)
+    )) {
+      same && (same = false)
+      //@ts-expect-error
+      merged[key] = update
+      continue
+    }
 
+    //@ts-expect-error
+    const next = deepPatch(value, update)
+
+    if (same && next !== value)
+      same = false
+
+    merged[key] = next
   }
-    
-  for (let key in patch)
+
+  for (let key in patch) 
     if (!(key in source)) {
       const update = patch[key]
 
-      if (update !== null && update !== undefined) {
-        same && (same = false)
-        //@ts-expect-error
-        $return[key] = update
-      }
-    }
+      if (update === null)
+        continue
+      
+      same && (same = false)
 
-  return same ? source : $return
+      //@ts-expect-error
+      merged[key] = update
+    }
+    
+  return same ? source : merged
 }
 
