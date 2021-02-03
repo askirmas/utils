@@ -1,6 +1,7 @@
 {
   "name": "@kirmas/assoc-utils",
   "version": "0.0.2-0",
+  "main": "dist",
   "scripts": {
     "test": "jest",
     "dev": "jest --watch --coverage=false",
