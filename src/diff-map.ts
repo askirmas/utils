@@ -38,24 +38,34 @@ function diffMap<T>(current: T, previous: T) :DiffShape<T> | undefined {
     const statuses = diffLines(arrToJsonLines(previous), arrToJsonLines(current))
     , {length} = statuses
     //TODO `new Array(Math.max)`
-    , result = []
+    , result = [] as DiffShape<T> & unknown[]
 
     for (let i = 0; i < length; i++) {
-      const { value, removed, added } = statuses[i]
+      const { removed, added, count = 1} = statuses[i]
+      , { removed: nextRemoved, added: nextAdded, count: nextCount = 1} = statuses[i + 1] ?? {}
+      , status = diff2status(added, removed)
+      , nextStatus = diff2status(nextAdded, nextRemoved)
 
-      let len = 1
-      // Last "\n" is lines delimiter
-      for (let i = value.length - 1; i--;)
-        if (value[i] === "\n")
-          len++
-      
-      result.push(...new Array(len).fill(
-        removed 
-        ? DELETED
-        : added
-        ? ADDED
-        : undefined,      
+      // Was against count
+      // let count = 1
+      // // Last "\n" is lines delimiter
+      // for (let i = value.length - 1; i--;)
+      //   if (value[i] === "\n")
+      //     count++
+
+      if (!(
+        status === DELETED && nextStatus === ADDED
+        || status === ADDED && nextStatus === DELETED
       ))
+        pushRepeat(result, count, status)
+      else {
+        i++
+        count > nextCount && pushRepeat(result, count - nextCount, status)
+        pushRepeat(result, count > nextCount ? nextCount : count, MODIFIED)
+        count < nextCount && pushRepeat(result, nextCount - count, nextStatus)
+      }
+        
+      
     }
     return result
   }
@@ -87,4 +97,16 @@ function arrToJsonLines<T>(arr: T[]) {
   return arr
   .map(x => x === undefined ? x : $stringify(x))
   .join("\n")
+}
+
+function diff2status(added: boolean|undefined, removed: boolean|undefined) {
+  return removed 
+  ? DELETED
+  : added
+  ? ADDED
+  : undefined
+}
+
+function pushRepeat<T>(source: T[], length: number, item: T) {
+  return source.push(...new Array(length).fill(item))
 }
