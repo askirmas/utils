@@ -20,3 +20,9 @@ it("flat object", () => expect(diffMap(
   "added__bool": ADDED,
   "deleted__null": DELETED
 }))
+
+it("scalar array", () => expect(diffMap(
+  ["added", "same1"  ,            "same3"  , "modified-1"  , "added"],
+  [         "same1"  , "deleted", "same3"  , "modified-2"  ]
+)).toStrictEqual(
+  [ADDED  , undefined, DELETED  , undefined, DELETED, ADDED, ADDED  ]))
