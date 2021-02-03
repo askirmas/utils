@@ -41,6 +41,7 @@ function diffMap<T>(current: T, previous: T) :DiffShape<T> | undefined {
     , result = [] as DiffShape<T> & unknown[]
 
     for (let i = 0; i < length; i++) {
+      /* istanbul ignore next Looks like wrong type notation */
       const { removed, added, count = 1} = statuses[i]
       , { removed: nextRemoved, added: nextAdded, count: nextCount = 1} = statuses[i + 1] ?? {}
       , status = diff2status(added, removed)
