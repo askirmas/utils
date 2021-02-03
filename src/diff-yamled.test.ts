@@ -1,7 +1,7 @@
-import deepDiffYamled from "./diff-yamled";
+import deepDiff from "./diff-yamled";
 
 describe("fu", () => {
-  const result = deepDiffYamled(
+  const result = deepDiff(
     [
       "x",
       {"a": "1", "b": 1}

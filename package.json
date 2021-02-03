@@ -4,7 +4,11 @@
   "scripts": {
     "test": "jest",
     "dev": "jest --watch --coverage=false",
-    "release": "np"
+    "release": "np",
+    "compile": "tsc --project tsconfig.compile.json",
+    "precompile": "rm -rf dist",
+    "build": "npm run compile",
+    "prebuild": "npm run test"
   },
   "repository": {
     "type": "git",
@@ -37,5 +41,12 @@
   },
   "np": {
     "yarn": false
-  }
+  },
+  "files": [
+    "package.json",
+    "package.lock.json",
+    "LICENSE",
+    "README.md",
+    "dist"
+  ]
 }
