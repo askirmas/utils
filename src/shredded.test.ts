@@ -9,7 +9,6 @@ const patches: Record<string, Shredded<Source1>> = {
   "Change a": {"a": 2},
   "Change b": {"b": 2},
   "Delete b": {"b": null},
-  //@ts-expect-error
   "Delete a": {"a": null},
   //TODO //@ts-expect-error
   "Undef a": {"a": undefined},

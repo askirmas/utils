@@ -1,9 +1,11 @@
 {
   "collectCoverage": true,
-  "coverageDirectory": "../coverage",
-  "rootDir": "src",
   "collectCoverageFrom": [
-    "<rootDir>/**/*.{ts,tsx,js,jsx}"
+    "**/*.ts",
+    "!**/*.d.ts",
+    "!**/node_modules/**",
+    "!**/coverage/**",
+    "!**/cypress/**"
   ],
   "coverageThreshold": {
     "global": {
@@ -14,5 +16,7 @@
     }
   },
   "preset": "ts-jest",
-  "testEnvironment": "node"
+  "testEnvironment": "node",
+  "bail": 1,
+  "verbose": true
 }
