@@ -1,108 +1,80 @@
 const {isArray: $isArray} = Array
+, unknownMark: unique symbol = Symbol()
 
-export default deepPatch
+export {
+  deepMerge
+}
 
-function deepPatch<T>(source: T, patch: Shredded<T>) :T {
-  if (patch === undefined || patch === source)
-    return source
+function deepMergeHelper<S, P, U>(source: S, patch: P, unknown: U) {
+  switch (patch) {
+    case undefined:
+    //@ts-ignore
+    case source:
+      return source
+    case null:
+      return 
+  }
 
   if (
     typeof patch !== "object"
-    || !(
-      source !== null
-      && typeof source === "object"
-    )
-    || $isArray(patch) !== $isArray(source)
+    || $isArray(source) !== $isArray(patch)
   )
-    //@ts-expect-error
     return patch
-  
-  if ($isArray(source)) {
-    const {length} = source
-    , p = patch as typeof patch & unknown[]
-    , {"length": patchLen} = p
 
-    if (length !== patchLen)
-      //@ts-expect-error
-      return p
-    
-    for (let i = length; i--;)
-      if (p[i] !== source[i])
-        //@ts-expect-error
-        return p
-    
-    return source
-  }
- 
-  const merged = {} as T
+  return unknown
+}
+
+function deepMerge<Source>(source: Source, patch: Shredded<Source>): Source {
+  const simpleAssign = deepMergeHelper(source, patch, unknownMark)
+
+  if (simpleAssign !== unknownMark)
+    return simpleAssign as Source
+
+  const merged = ($isArray(source) ? [] : {}) as Source
 
   let isSource = true
-  let isPatch = true
+  , isPatch = true
 
-  for (let key in source) {
-    const value = source[key]
-    , update = patch[key]
-    
-    if (update === null) {
-      isPatch && (isPatch = false)
-      isSource && (isSource = false)
-      continue
-    }
-
-    if (
-      update === undefined
-      || value === update
-    ) {
-      (update === undefined) && (isPatch = false)
-      merged[key] = value
-      continue
-    }
-
-    if (!(
-      typeof update === "object"
-      && value !== null
-      && typeof value === "object"
-      && $isArray(value) === $isArray(update)
-    )) {
-      isSource && (isSource = false)
-      //@ts-expect-error
-      merged[key] = update
-      continue
-    }
-
-    //@ts-expect-error
-    const next = deepPatch(value, update)
-
-    if (isSource && next !== value)
-      isSource = false
-
-    if (isPatch && next !== update)
+  for (const key in source) {
+    if (!(key in patch && patch[key] !== undefined)) {
+      merged[key] = source[key]
       isPatch = false
+      continue
+    }
     
-    merged[key] = next
+    const sourceValue = source[key]
+    , patchValue = patch[key]
+    , simpleAssign = deepMergeHelper(sourceValue, patchValue, unknownMark)
+    , resultValue = simpleAssign !== unknownMark ? simpleAssign
+    : deepMerge(sourceValue,
+      //@ts-expect-error
+      patchValue
+    )
+
+    if (resultValue !== undefined)
+      //@ts-expect-error
+      merged[key] = resultValue
+
+    isSource = isSource && resultValue === sourceValue
+    isPatch = isPatch && resultValue === patchValue 
   }
 
-  for (let key in patch) 
-    if (!(key in source)) {
-      const update = patch[key]
+  for (const key in patch) {
+    if (key in source)
+      continue
 
-      if (update === null || update === undefined) {
-        isPatch = false
-        continue
-      }
-      
-      isSource && (isSource = false)
+    const patchValue = patch[key]
 
-      //@ts-expect-error
-      merged[key] = update
-    }
+    if (patchValue === null)
+      continue
     
-  if (isSource)
-    return source
-  if (isPatch)
     //@ts-expect-error
-    return patch
+    merged[key] = patchValue
+    isSource = false
+  }
 
-  return merged
+  return isSource ? source
+  : isPatch ? patch as Source
+  : merged
 }
 

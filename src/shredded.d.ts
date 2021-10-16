@@ -6,7 +6,10 @@ declare type Shredded<T> = (
   //TODO Looks like still may be `Array`
   : T extends Record<string, unknown> 
   ? {
-    [K in keyof T]?: undefined | null | Shredded<T[K]> 
+    [K in keyof T]?: Shredded<T[K]> | undefined | (
+      // Couldn't delete required property
+      undefined extends T[K] ? null : never
+    )
   }
   : T
 )
