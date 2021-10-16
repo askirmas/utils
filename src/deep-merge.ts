@@ -5,25 +5,6 @@ export {
   deepMerge
 }
 
-function deepMergeHelper<S, P, U>(source: S, patch: P, unknown: U) {
-  switch (patch) {
-    case undefined:
-    //@ts-ignore
-    case source:
-      return source
-    case null:
-      return 
-  }
-
-  if (
-    typeof patch !== "object"
-    || $isArray(source) !== $isArray(patch)
-  )
-    return patch
-
-  return unknown
-}
-
 function deepMerge<Source>(source: Source, patch: Shredded<Source>): Source {
   const simpleAssign = deepMergeHelper(source, patch, unknownMark)
 
@@ -78,3 +59,21 @@ function deepMerge<Source>(source: Source, patch: Shredded<Source>): Source {
   : merged
 }
 
+function deepMergeHelper<S, P, U>(source: S, patch: P, unknown: U) {
+  switch (patch) {
+    case undefined:
+    //@ts-ignore
+    case source:
+      return source
+    case null:
+      return 
+  }
+
+  if (
+    typeof patch !== "object"
+    || $isArray(source) !== $isArray(patch)
+  )
+    return patch
+
+  return unknown
+}
