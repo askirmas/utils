@@ -5,6 +5,7 @@ export {
   deepMerge
 }
 
+// TODO `target` 3rd arg
 function deepMerge<Source>(source: Source, patch: Shredded<Source>): Source {
   const simpleAssign = deepMergeHelper(source, patch, unknownMark)
 
