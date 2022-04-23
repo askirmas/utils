@@ -66,8 +66,8 @@ describe(WideStore.name, () => {
     //@ts-expect-error
     expect(store.store).not.toStrictEqual({})
     //@ts-expect-error
-    expect(store.store).toStrictEqual({
-      "a": {"a1": {}}
-    })
+    expect(store.store).toStrictEqual(
+      new Map().set("a", new Map([["a1", new Map()]]))
+    )
   })
 })

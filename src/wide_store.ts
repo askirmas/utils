@@ -1,6 +1,7 @@
+type RecMap<T> = Map<string, T | RecMap<T>>
 export class WideStore<T, K extends keyof T> {
   protected _size = 0
-  protected store: any = {}
+  protected store: RecMap<T> = new Map()
 
   constructor(
     readonly key: K,
@@ -22,31 +23,37 @@ export class WideStore<T, K extends keyof T> {
     for (let k = 0; k < stop; k++) {
       const key = keys[k]
 
-      if (isNew)
-        pointer = pointer[key] = {}
-      else {
-        const next = pointer[key]
+      if (isNew) {
+        const next: RecMap<T> = new Map()
+        pointer.set(key, next)
+        pointer = next
+      } else {
+        let next = pointer.get(key) as undefined|RecMap<T>
 
         if (next === undefined) {
           isNew = true
-          pointer[key] = {}
+          next = new Map()
+          pointer.set(key, next)
         }
 
-        pointer = pointer[key]
+        pointer = next!
       }
     }
 
     const leafKey = keys[stop]
-    
-    leafKey in pointer || this._size++
+    , has = pointer.has(leafKey)
 
-    if (force || !(leafKey in pointer))
-      pointer[leafKey] = obj
+    if (has)
+      this._size++
+    
+
+    if (force || !has)
+      pointer.set(leafKey, obj)
 
     return this
   }
 
-  protected act(key: T[K], op: "get"|"has"|"delete") {
+  protected act<Op extends "get"|"has"|"delete">(key: T[K], op: Op) {
     const keys = this.indexing(key)
     , stop = keys.length - (op === "delete" ? 1 : 0)
 
@@ -54,27 +61,29 @@ export class WideStore<T, K extends keyof T> {
 
     for (let k = 0; k < stop; k++) {
       const key = keys[k]
+      , next = pointer.get(key) as undefined|RecMap<T>
 
-      if (pointer[key] === undefined)
+      if (next === undefined)
         return op === "has" ? false : undefined
 
-      pointer = pointer[key]
+      pointer = next
     }
 
     const leafKey = keys[stop]
 
     if (op === "delete") {
-      if (leafKey in pointer) {
-        this._size--
-        const deleted = pointer[leafKey]
-        delete pointer[leafKey]
-        return deleted
-      } else {
+      const leaf = pointer.get(leafKey) as T | undefined
+
+      if (leaf === undefined)
         return undefined
+      else {
+        this._size--
+        pointer.delete(leafKey)
+        return leaf
       }
     }
     
-    return op === "get" ? pointer : true
+    return op === "get" ? pointer as unknown as T : true
   }
 
   add(obj: T): this {
@@ -86,19 +95,22 @@ export class WideStore<T, K extends keyof T> {
   }
 
   has(key: T[K]): boolean {
+    //@ts-expect-error
     return this.act(key, "has")
   }
 
   get(key: T[K]): T | undefined {
+    //@ts-expect-error
     return this.act(key, "get")
   }
 
   delete(obj: T[K]): T | undefined {
+    //@ts-expect-error
     return this.act(obj, "delete")
   }
   
   reset() {
-    this.store = {}
+    this.store = new Map()
     this._size = 0
     return this
   }
