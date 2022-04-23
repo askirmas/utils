@@ -47,15 +47,18 @@ function project<S,
     const proj = map[key as keyof typeof map]
     
     if (typeof proj === "string") {
-      const pre = renames[proj]
-      
-      if (pre === undefined)
-        renames[proj] = key
-      else if (isArray(pre))
-        pre.push(key)
-      else
-        renames[proj] = [pre, key]
-
+      if (proj === key)
+        toKeep.add(key)
+      else {
+        const pre = renames[proj]
+        
+        if (pre === undefined)
+          renames[proj] = key
+        else if (isArray(pre))
+          pre.push(key)
+        else
+          renames[proj] = [pre, key]
+      }
     } else if (proj)
       toKeep.add(key)
   }

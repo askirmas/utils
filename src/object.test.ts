@@ -47,20 +47,25 @@ describe(project.name, () => {
       "renamed": "rename",
       //@ts-expect-error
       "replace": false,
-      "replaced": "replace",
+      "replaced1": "replace",
+      "replaced2": "replace",
       "copy1": "copy",
       //@ts-expect-error
       "copy": "copy",
       "copy2": "copy",
+      "copy3": "copy",
     })
 
     expect(obj).toBe(result)
     expect(result).toStrictEqual({
       "keep": "Keep",
       "renamed": "Rename",
-      "replaced": "Replace",
+      "replaced1": "Replace",
+      "replaced2": "Replace",
+      "copy": "Copy",
       "copy1": "Copy",
       "copy2": "Copy",
+      "copy3": "Copy",
     })
   })
 })
