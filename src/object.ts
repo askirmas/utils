@@ -29,24 +29,22 @@ function pick(source: unknown, picking: unknown[], target = {}) {
   return target
 }
 
-function project<S,
-  Pick extends {[s in keyof S]?: 1|true},
-  Omit extends {[s in keyof S]?: 0|false|null|undefined},
-  Rename extends {[k: string]: keyof S}
-  >(base: S, map: Pick & Omit) {
+function project<S, M extends Dict<keyof S|0|1|false|true|null|undefined>
+>(base: S, map: M) {
   const target = base as unknown as {
-    [k in keyof Pick & keyof Rename]:
-      k extends Extract<keyof Pick, keyof S> ? S[k]
-      : k extends keyof Rename ? S[Rename[k]] 
-      : never
+    [k in Exclude<keyof M, {[m in keyof M]:
+      M[m] extends 0|false|null|undefined ? m : never
+    }[keyof M]>
+    ]: S[M[k] extends keyof S ? M[k] : Extract<k, keyof S>]
   }
-  , toKeep = new Set<string>()
-  , renames: Dict<string | string[]> = {}
+  , toKeep = new Set<keyof S>()
+  , renames = {} as Record<keyof S, string | string[]>
   
   for (const key in map) {
     const proj = map[key as keyof typeof map]
     
     if (typeof proj === "string") {
+      //@ts-expect-error
       if (proj === key)
         toKeep.add(key)
       else {
@@ -60,6 +58,7 @@ function project<S,
           renames[proj] = [pre, key]
       }
     } else if (proj)
+      //@ts-expect-error
       toKeep.add(key)
   }
 
@@ -75,6 +74,7 @@ function project<S,
         const value = base[key]
         , {length} = rename
   
+        //@ts-expect-error
         toKeep.has(key) || delete target[key]
   
         for (let i = 0; i < length; i++)
@@ -84,6 +84,7 @@ function project<S,
     }
 
     if (!toKeep.has(key))
+      //@ts-expect-error
       delete target[key]
   }
     

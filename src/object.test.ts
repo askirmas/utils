@@ -38,26 +38,8 @@ describe(project.name, () => {
       "omit": "Omit",
       "replace": "Replace",
       "copy": "Copy",
-    }
-    , result = project(obj, {
-      //@ts-expect-error
-      "keep": 1,
-      //@ts-expect-error
-      "remove": 0,
-      "renamed": "rename",
-      //@ts-expect-error
-      "replace": false,
-      "replaced1": "replace",
-      "replaced2": "replace",
-      "copy1": "copy",
-      //@ts-expect-error
-      "copy": "copy",
-      "copy2": "copy",
-      "copy3": "copy",
-    })
-
-    expect(obj).toBe(result)
-    expect(result).toStrictEqual({
+    } as const
+    , expectation = {
       "keep": "Keep",
       "renamed": "Rename",
       "replaced1": "Replace",
@@ -66,6 +48,21 @@ describe(project.name, () => {
       "copy1": "Copy",
       "copy2": "Copy",
       "copy3": "Copy",
+    } as const
+    , result: typeof expectation = project(obj, {
+      "keep": 1,
+      "remove": 0,
+      "renamed": "rename",
+      "replace": false,
+      "replaced1": "replace",
+      "replaced2": "replace",
+      "copy1": "copy",
+      "copy": "copy",
+      "copy2": "copy",
+      "copy3": "copy",
     })
+
+    expect(obj).toBe(result)
+    expect(result).toStrictEqual(expectation)
   })
 })
