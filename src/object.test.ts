@@ -65,4 +65,22 @@ describe(project.name, () => {
     expect(obj).toBe(result)
     expect(result).toStrictEqual(expectation)
   })
+
+  it("TDD swap", () => {
+    const result = project({
+      "swap1": 1,
+      "swap2": 2
+    }, {
+      "swap2": "swap1",
+      "swap1": "swap2"
+    })
+
+    expect(result).not.toStrictEqual({
+      "swap1": 2,
+      "swap2": 1
+    })
+    expect(result).toStrictEqual({
+      "swap1": 1
+    })
+  })
 })
