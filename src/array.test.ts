@@ -1,4 +1,4 @@
-import { fill } from "./array";
+import { fill, sort } from "./array";
 import { durate } from "./durate";
 import { idfn } from "./function";
 
@@ -88,4 +88,24 @@ describe(Array.prototype.map, () => {
       expect(native).toBeLessThan(manual)  
     })
   }
+})
+
+describe(sort.name, () => {
+  it("demo", () => expect(sort(
+    [
+      {"key": "a", "value": 1, "id": 3},
+      {"key": "b", "value": 2, "id": 4},
+      {"key": "b", "value": 2, "id": 2},
+      {"key": "a", "value": 3, "id": 1},
+    ],
+    {
+      "key": 1,
+      "value": -1
+    }
+  )).toStrictEqual([
+    {"key": "a", "value": 3, "id": 1},
+    {"key": "a", "value": 1, "id": 3},
+    {"key": "b", "value": 2, "id": 4},
+    {"key": "b", "value": 2, "id": 2},
+  ]))
 })

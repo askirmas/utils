@@ -14,3 +14,5 @@ export type ReKey<S, M extends {[s in keyof S]?: string}> = {
 }
 
 export type Fn<Args extends any[] = [], R = any> = (...args: Args) => R
+
+export type Dict<V = unknown, T extends string = string> = Record<T, V>

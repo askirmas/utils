@@ -1,7 +1,12 @@
-import type { Fn } from "./ts-swiss.types"
+import type {
+  Dict,
+  Fn
+} from "./ts-swiss.types"
 
 export {
-  fill
+  fill,
+  sort,
+  comparer
 }
 
 function fill<T>(length: number, producer: T & (
@@ -24,3 +29,20 @@ function fill<T>(length: number, producer: T & (
   return array
 }
 
+function sort<T extends Dict>(source: T[], order: {[p in keyof T]?: -1 | 1}) {
+  return source.sort(comparer(order))
+}
+
+function comparer<P extends string>(order: {[p in P]?: -1 | 1}) {
+  return <T extends {[p in P]: unknown}>(a: T, b: T) => {
+    for (const key in order) {
+      const sign = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0
+
+      if (sign !== 0)
+        return sign * order[key]!
+
+    }
+
+    return 0
+  } 
+}
