@@ -1,5 +1,8 @@
 export {
-  $all
+  $all,
+  nextTick,
+  immediate,
+  sleep
 };
 
 async function $all<S extends Record<string, unknown>>(
@@ -16,4 +19,16 @@ async function $all<S extends Record<string, unknown>>(
   await Promise.all(promises)
 
   return $return
+}
+
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function immediate() {
+  return new Promise(resolve => setImmediate(resolve))
+}
+
+async function nextTick() {
+  return new Promise(resolve => process.nextTick(resolve))
 }
