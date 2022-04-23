@@ -1,10 +1,14 @@
+import { performance } from "perf_hooks"
+
+const {now} = performance
+
 export {
   durate
 }
 
-function durate(now = Date.now) {
-  const started = now()
+function durate(n = now) {
+  const started = n()
   return function end() {
-    return now() - started
+    return n() - started
   }
 }

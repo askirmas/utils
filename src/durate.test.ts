@@ -3,7 +3,7 @@ import { durate } from "./durate"
 
 describe(durate.name, () => {
   it(Date.name, () => {
-    const end = durate()
+    const end = durate(Date.now)
     , duration = end()
 
     expect(duration).toBe(0)
