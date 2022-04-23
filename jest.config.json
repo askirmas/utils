@@ -1,12 +1,5 @@
 {
   "collectCoverage": true,
-  "collectCoverageFrom": [
-    "**/*.ts",
-    "!**/*.d.ts",
-    "!**/node_modules/**",
-    "!**/coverage/**",
-    "!**/cypress/**"
-  ],
   "coverageThreshold": {
     "global": {
       "statements": 100,

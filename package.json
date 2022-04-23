@@ -5,7 +5,7 @@
   "scripts": {
     "setup": "git config include.path ../.gitconfig && git-hooks-wrapper init",
     "test": "jest --runInBand --verbose=false",
-    "dev": "jest --watch --coverage=false",
+    "dev": "jest --runInBand --watch",
     "release": "np",
     "compile": "tsc --project tsconfig.compile.json",
     "precompile": "rm -rf dist",
