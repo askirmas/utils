@@ -18,3 +18,9 @@ export type Fn<Args extends any[] = [], R = any> = (...args: Args) => R
 export type Dict<V = unknown, T extends string = string> = Record<T, V>
 
 export type Entry<S extends Dict> = {[k in keyof S]: [k, S[k]]}[keyof S]
+
+export type Arg0<F extends Fn<any[]>> = Parameters<F>[0]
+
+declare const kind: unique symbol
+
+export type Id<kind, base = string> = base & {[kind]: kind}
