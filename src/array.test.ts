@@ -1,14 +1,22 @@
-import { fill, sort } from "./array";
+import {
+  fill,
+  sort
+} from "./array";
 import { durate } from "./durate";
 import { idfn } from "./function";
+import { expectInRange } from "./jest";
+
+beforeEach(() => gc!())
 
 describe(fill.name, () => {
-  it("Investigate perf", () => {
+  describe("Investigate perf", () => {
     const nativeFill = (length: number) => {
       const end = durate()
       new Array(length).fill(0)
-
-      return end()
+      
+      const d = end()
+      gc!()
+      return d
     }
     , manualDemand = (length: number) => {
       const end = durate()
@@ -16,7 +24,9 @@ describe(fill.name, () => {
       for (let i = 0; i < length; i++)
         arr[i] = 0
 
-      return end()
+      const d = end()
+      gc!()
+      return d
     }
     , manualPrepared = (length: number) => {
       const end = durate()
@@ -24,17 +34,26 @@ describe(fill.name, () => {
       for (let i = 0; i < length; i++)
         arr[i] = 0
 
-      return end()
+      const d = end()
+      gc!()
+      return d
     }
 
-    for (const length of [1e3, 1e4, 1e5, 1e6]) {
-      const native = nativeFill(length)
-      , demand = manualDemand(length)
-      , prepared = manualPrepared(length) 
+    for (const pow of [3, 4, 5, 6] as const)
+      describe(`10^${pow}`, () => {
+        const length = 10 ** pow
 
-      expect(native).toBeLessThan(prepared)
-      expect(prepared).toBeLessThan(demand)
-    }
+        let native = 0
+        , demand = 0
+        , prepared = 0
+
+        it("native", () => {native = nativeFill(length)})
+        it("demand", () => {demand = manualDemand(length)})
+        it("prepared", () => {prepared = manualPrepared(length)})
+
+        it("prepared / native", () => expectInRange(prepared / native, 0.25, 25))
+        it("demand / prepared", () => expectInRange(demand / prepared, 0.2, 270))
+      })
   })
 
   it("primitive", () => expect(
