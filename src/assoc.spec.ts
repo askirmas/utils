@@ -32,27 +32,33 @@ describe("perf", () => {
       "values": {}
     } as Record<"rewrite"|"getY"|"getN"|"set"|"values", Record<keyof typeof sources, DurationStat>>
     , batchSize = Math.round(5 * 10 ** (pow - 1))
-    , idSet: Set<string> = new Set(fill(3 * batchSize, newId))
 
-    while (idSet.size < 3 * batchSize)
-      idSet.add(newId())
+    let ids: string[]
+    , items: {"id": string}[]
 
-    const ids = Array.from(idSet)
-    , objs: {"id": string}[] = []
+    beforeAll(() => {
+      const idSet: Set<string> = new Set(fill(3 * batchSize, newId))
 
-    idSet.clear()
-
-    for (let i = batchSize; i < 3 * batchSize; i ++)
-      objs.push({"id": ids[i]})
-
-    ids.length = 2 * batchSize
-
+      while (idSet.size < 3 * batchSize)
+        idSet.add(newId())
+  
+      const ids = Array.from(idSet)
+      , items: {"id": string}[] = []
+  
+      idSet.clear()
+  
+      for (let i = batchSize; i < 3 * batchSize; i ++)
+        items.push({"id": ids[i]})
+  
+      ids.length = 2 * batchSize  
+    })
+    
     for (const [name, source] of Object.entries(sources) as Entry<typeof sources>[]) {
       for (const method of ["set", "rewrite"] as const)
         describe(method, () => {
           it(name, () => {
-            for (let s = objs.length ; s--;) {
-              const obj = objs[s]
+            for (let s = items.length ; s--;) {
+              const obj = items[s]
               , m = measures[method]
 
               switch (name as keyof typeof sources) {
@@ -71,40 +77,40 @@ describe("perf", () => {
               }
             }
 
-            source instanceof Map && expect(source.size).toBe(objs.length)
+            source instanceof Map && expect(source.size).toBe(items.length)
           })
         })
 
       describe("getY", () => {
         it(name, () => {
-          let val
+          let val = null
 
           for (let i = ids.length ; i-- > batchSize;) {
             const m = measures.getY
-
+            , id = ids[i]
             switch (name as keyof typeof sources) {
               case "obj_native":
                 start(m, name)
                 //@ts-expect-error
-                val = source[ids[i]]
+                val = source[id]
                 stop(m, name)
                 break;
               case "map_native":
                 start(m, name)
                 //@ts-expect-error
-                val = source.get(ids[i])
+                val = source.get(id)
                 stop(m, name)
                 break
             }
-          }
 
-          val
+            expect(val).toBe(items[i - batchSize])
+          }
         })
       })
 
       describe("getN", () => {
         it(name, () => {
-          let val
+          let val = null
 
           for (let i = batchSize; i--;) {
             const m = measures.getN
@@ -123,9 +129,9 @@ describe("perf", () => {
                 stop(m, name)
                 break
             }
-          }
 
-          val
+            expect(val).toBeUndefined()
+          }
         })        
       })
 

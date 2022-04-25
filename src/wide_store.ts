@@ -6,7 +6,7 @@ export class WideStore<T, K extends keyof T> {
   constructor(
     readonly key: K,
     readonly indexing: (value: T[K]) => string[],
-    _tsHint: T
+    _tsHint?: T
   ) {}
 
   get size() {

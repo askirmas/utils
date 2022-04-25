@@ -4,14 +4,15 @@
   "main": "dist",
   "scripts": {
     "setup": "git config include.path ../.gitconfig && git-hooks-wrapper init",
-    "test": "npm run jest -- --verbose=false",
+    "test": "npm run jest -- --collectCoverageFrom=src/**/*.ts --coverage",
     "dev": "npm run jest -- --watch",
     "release": "np",
     "compile": "tsc --project tsconfig.compile.json",
     "precompile": "rm -rf dist",
     "build": "npm run compile",
     "prebuild": "npm run test",
-    "jest": "node --expose-gc node_modules/.bin/jest --runInBand --logHeapUsage"
+    "jest": "node --expose-gc --max-old-space-size=8192 node_modules/.bin/jest --runInBand --logHeapUsage",
+    "prejest": "jest --clearCache"
   },
   "repository": {
     "type": "git",
@@ -25,15 +26,16 @@
   },
   "homepage": "https://github.com/askirmas/utils#readme",
   "devDependencies": {
+    "@types/d3-interpolate": "^3.0.1",
     "@types/jest": "^27.4.1",
     "@types/node": "^16.11.27",
+    "d3-interpolate": "^3.0.1",
     "git-hooks-wrapper": "^0.7.1",
     "jest": "^27.5.1",
     "np": "^7.6.1",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"
   },
-  "dependencies": {},
   "private": false,
   "publishConfig": {
     "access": "public"
